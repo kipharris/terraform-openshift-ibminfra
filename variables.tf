@@ -1,17 +1,22 @@
-variable "hourly_billing" {
-  default = "true"
-}
+variable "ibm_sl_username" {}
+variable "ibm_sl_api_key" {}
 
 variable "datacenter" {
-  default = "lon06"
+  default = "wdc04"
 }
 
-variable "hostname_prefix" {
-  default = "IBM-OCP"
+variable vlan_count {
+  description = "Set to 0 if using existing and 1 if deploying a new VLAN"
+  default = "1"
+}
+variable private_vlanid {
+  description = "ID of existing private VLAN to connect VSIs"
+  default = "2543851"
 }
 
-variable "bastion_count" {
-  default = 1
+variable public_vlanid {
+  description = "ID of existing public VLAN to connect VSIs"
+  default = "2543849"
 }
 
 variable "master_count" {
@@ -31,57 +36,37 @@ variable "storage_count" {
   default = 0
 }
 
-variable "ssh_public_key" {
-  default     = "~/.ssh/id_rsa.pub"
+variable "private_ssh_key" {
+  default     = "~/.ssh/id_rsa"
 }
 
 variable "ssh-label" {
   default = "ssh_key_terraform"
 }
 
+variable "ssh_public_key" {
+  default     = "~/.ssh/id_rsa.pub"
+}
+
+variable "bastion_ssh_key_file" {
+  default = "~/.ssh/id_rsa"
+}
+
 variable "domain" {
-  default = "IBM-OpenShift.cloud"
+  default = "ibm.com"
 }
 
-
-variable "ibm_sl_username"{
+variable "hourly_billing" {
+  default = "true"
 }
 
-
-variable "ibm_sl_api_key"{
+variable "hostname_prefix" {
+  default = "IBM-OCP"
 }
 
-variable "rhn_username"{
-  default = ""
+variable "bastion_count" {
+  default = 1
 }
-
-variable "rhn_password"{
-  default = ""
-}
-
-variable "pool_id"{
-   default = ""
-}
-
-variable "private_ssh_key"{
-  default     = "~/.ssh/id_rsa"
-}
-
-variable vlan_count {
-  description = "Set to 0 if using existing and 1 if deploying a new VLAN"
-  default = "1"
-}
-variable private_vlanid {
-  description = "ID of existing private VLAN to connect VSIs"
-  default = "2543851"
-}
-
-variable public_vlanid {
-  description = "ID of existing public VLAN to connect VSIs"
-  default = "2543849"
-}
-
-### Flavors to be changed to actual values in '#...'
 
 variable bastion_flavor {
   default = "B1_4X16X25"
@@ -101,15 +86,6 @@ variable app_flavor {
 
 variable storage_flavor {
    default = "B1_4X16X25"
-}
-
-variable "bastion_ssh_key_file" {
-  default = "~/.ssh/id_rsa"
-}
-
-
-variable "ose_version" {
-  default = "3.11"
 }
 
 variable "os_reference_code" {
