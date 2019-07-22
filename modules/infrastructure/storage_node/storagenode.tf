@@ -1,16 +1,19 @@
 #################################################
 # VM Instance Setup for Storage node
 #################################################
+
 resource "ibm_compute_vm_instance" "storagenode" {
   count                     = "${var.storage_node_count}"
   os_reference_code         = "${var.storage_os_ref_code}"
   hostname                  = "${var.storage_hostname_prefix}-${var.random_id}-${var.storage_hostname}-${count.index}"
   domain                    = "${var.domain}"
   datacenter                = "${var.datacenter}"
+  cores                     = 4
+  memory                    = 16384
   private_network_only      = "false"
   network_speed             = 1000
-  local_disk                = "false"
-  flavor_key_name           = "${var.storage_flavor}"
+  local_disk                = false
+  disks                     = ["100", "100", "250", "250", "250"]
   ssh_key_ids               =["${var.storage_ssh_key_ids}"]
   private_vlan_id           = "${var.private_vlan_id}"
   public_vlan_id           = "${var.public_vlan_id}"

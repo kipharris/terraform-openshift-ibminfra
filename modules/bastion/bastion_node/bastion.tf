@@ -38,18 +38,19 @@ resource "null_resource" "copy_bastion_private_key" {
 #################################################
 
 resource "ibm_compute_vm_instance" "bastion" {
-    os_reference_code         = "${var.bastion_os_ref_code}"
-    hostname                  = "${var.bastion_hostname_prefix}-${var.random_id}-${var.bastion_hostname}"
-    domain                    = "${var.domain}"
-    datacenter                = "${var.datacenter}"
-    private_network_only      = "false"
-    flavor_key_name           = "${var.bastion_flavor}"
-    network_speed             = 1000
-    local_disk                = "false"
-    ssh_key_ids               = ["${var.bastion_ssh_key_id}"]
-    private_vlan_id           = "${var.private_vlan_id}"
-    public_vlan_id            = "${var.public_vlan_id}"
-    public_security_group_ids = ["${ibm_security_group.openshift-bastion.id}"]
+    os_reference_code          = "${var.bastion_os_ref_code}"
+    hostname                   = "${var.bastion_hostname_prefix}-${var.random_id}-${var.bastion_hostname}"
+    domain                     = "${var.domain}"
+    datacenter                 = "${var.datacenter}"
+    private_network_only       = "false"
+    flavor_key_name            = "${var.bastion_flavor}"
+    network_speed              = 1000
+    local_disk                 = "false"
+    disks                      = [ "100" ]
+    ssh_key_ids                = ["${var.bastion_ssh_key_id}"]
+    private_vlan_id            = "${var.private_vlan_id}"
+    public_vlan_id             = "${var.public_vlan_id}"
+    public_security_group_ids  = ["${ibm_security_group.openshift-bastion.id}"]
     private_security_group_ids = ["${ibm_security_group.openshift-bastion.id}"]
-    hourly_billing            = "${var.hourly_billing}"
+    hourly_billing             = "${var.hourly_billing}"
 }

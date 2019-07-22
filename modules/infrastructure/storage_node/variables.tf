@@ -34,3 +34,7 @@ variable "storage_ssh_key_ids" {
 }
 
 variable "storage_private_ssh_key" {}
+
+variable "gluster_num_disks" {
+    default = 3
+}

@@ -57,7 +57,7 @@ variable "domain" {
 }
 
 variable "hourly_billing" {
-  default = "true"
+  default = true
 }
 
 variable "hostname_prefix" {
