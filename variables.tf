@@ -47,10 +47,6 @@ variable "hostname_prefix" {
   default = "IBM-OCP"
 }
 
-variable "bastion_count" {
-  default = 1
-}
-
 variable "os_reference_code" {
     default = "REDHAT_7_64"
 }

@@ -45,7 +45,7 @@ resource "ibm_compute_vm_instance" "bastion" {
     private_network_only       = "false"
     network_speed              = 1000
     local_disk                 = "false"
-    disks                      = [ "${var.node["disk_size"]}" ]
+    disks                      = ["${var.node["disk_size"]}"]
     ssh_key_ids                = ["${var.bastion_ssh_key_id}"]
     private_vlan_id            = "${var.private_vlan_id}"
     public_vlan_id             = "${var.public_vlan_id}"
