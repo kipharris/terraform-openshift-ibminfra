@@ -50,3 +50,7 @@ variable "node" {
 variable "ssh_username" {
     default = "root"
 }
+
+variable "disks" {
+    type = "list"
+}

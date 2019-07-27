@@ -2,12 +2,6 @@
 # VM Instance for App Node on Private VLAN
 #################################################
 
-locals {
-    gluster = "${lookup(var.node, "gluster_disk_size", 0)}"
-    default_disks = ["${var.node["disk_size"]}", "${var.node["docker_disk_size"]}"]
-    all_disks = "${local.gluster == 0 ? local.default_disks : ["${var.node["disk_size"]}", "${var.node["docker_disk_size"]}", "${lookup(var.node, "gluster_disk_size")}]}"
-}
-
 resource "ibm_compute_vm_instance" "node" {
   count                      = "${var.node["nodes"]}"
   os_reference_code          = "${var.os_ref_code}"
@@ -19,7 +13,7 @@ resource "ibm_compute_vm_instance" "node" {
   memory                     = "${var.node["memory"]}"
   network_speed              = 1000
   local_disk                 = "false"
-  disks                      = ["${local.all_disks}"]
+  disks                      = ["${var.disks}"]
   ssh_key_ids                = ["${var.ssh_key_ids}"]
   private_vlan_id            = "${var.private_vlan_id}"
   public_vlan_id             = "${var.public_vlan_id}"

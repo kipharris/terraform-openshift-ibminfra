@@ -60,6 +60,7 @@ module "bastion" {
     bastion_private_ssh_key = "${var.private_ssh_key}"
     bastion_ssh_key_file    = "${var.bastion_ssh_key_file}"
     node                    = "${var.bastion}"
+    disks                   = ["${var.bastion["disk_size"]}",]
 }
 
 #####################################################
@@ -81,6 +82,7 @@ module "masternode" {
     node_pub_sg     = []
     node_prv_sg     = []
     node            = "${var.master}"
+    disks           = ["${var.master["disk_size"]}", "${var.master["docker_disk_size"]}"]
 }
 
 #####################################################
@@ -102,6 +104,7 @@ module "infranode" {
     node_pub_sg     = ["${module.publicsg.openshift_node_id}"]
     node_prv_sg     = ["${module.privatesg.openshift_node_id}"]
     node            = "${var.infra}"
+    disks           = ["${var.infra["disk_size"]}", "${var.infra["docker_disk_size"]}"]
 }
 
 #####################################################
@@ -123,6 +126,7 @@ module "workernode" {
   node_pub_sg     = ["${module.publicsg.openshift_node_id}"]
   node_prv_sg     = ["${module.privatesg.openshift_node_id}"]
   node            = "${var.worker}"
+  disks           = ["${var.worker["disk_size"]}", "${var.worker["docker_disk_size"]}"]
 }
 
 #####################################################
@@ -144,4 +148,5 @@ module "storagenode" {
   node_pub_sg     = ["${module.publicsg.openshift_node_id}"]
   node_prv_sg     = ["${module.privatesg.openshift_node_id}"]
   node            = "${var.storage}"
+  disks           = ["${var.storage["disk_size"]}", "${var.storage["docker_disk_size"]}", "${var.storage["gluster_disk_size"]}"]
 }
