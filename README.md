@@ -24,20 +24,11 @@ module "infrastructure" {
     vlan_count           = "${var.vlan_count}"
     private_vlanid       = "${var.private_vlanid}"
     public_vlanid        = "${var.public_vlanid}"
-    master_count         = "${var.master_count}"
-    infra_count          = "${var.infra_count}"
-    app_count            = "${var.app_count}"
-    storage_count        = "${var.storage_count}"
     private_ssh_key      = "${var.private_ssh_key}"
     ssh_label            = "${var.ssh_label}"
     ssh_public_key       = "${var.public_ssh_key}"
     bastion_ssh_key_file = "${var.bastion_ssh_key_file}"
     domain               = "${var.domain}"
-    bastion_flavor       = "${var.bastion_flavor}"
-    master_flavor        = "${var.master_flavor}"
-    infra_flavor         = "${var.infra_flavor}"
-    app_flavor           = "${var.app_flavor}"
-    storage_flavor       = "${var.storage_flavor}"
     hostname_prefix      = "${var.hostname_prefix}"
     os_reference_code    = "${var.os_reference_code}"
     hourly_billing       = "${var.hourly_billing}"
@@ -54,20 +45,11 @@ module "infrastructure" {
 |vlan_count       |Create a private & public VLAN, in your account, for deploying Red Hat OpenShift. Default '1'. Set to '0' if use existing vlans id and '1' to deploy new vlan|1|
 |private_vlanid|Existing private vlan ID.  Ignored if `vlan_count = 0`|-|
 |public_vlanid|Existing public vlan ID.    Ignored if `vlan_count = 0`|-|
-|master_count|Number of Master nodes for the cluster.|1|
-|infra_count|Number of Infra nodes for the cluster.|1|
-|app_count|Number of app nodes for the cluster. |1|
-|storage_count|Number of storage nodes for the cluster. Set to 0 to configure openshift without glusterfs configuration and 3 or more to configure openshift with glusterfs |0|
 |ssh_private_key|Path to SSH private key.|~/.ssh/id_rsa|
 |ssh_label|An identifying label to assign to the SSH key.|ssh_key_openshift|
 |ssh_public_key|Path to SSH public key.|~/.ssh/id_rsa.pub|
 |bastion_ssh_key_file|SSH Key to use for Bastion VM.  Must not have a passphrase set on it|~/.ssh/id_rsa|
 |domain|Domain Name for the network interface used by VMs in the cluster.|ibm.com|
-|bastion_flavor|Flavor used to create Bastion VM|B1_4X16X100|
-|master_flavor|Flavor used to create Master node|B1_4X16X100|
-|infra_flavor|Flavor used to create Infra nodes|B1_4X16X100|
-|app_flavor|Flavor used to create app nodes|B1_4X16X100|
-|storage_flavor|Flavor used to create storage nodes|B1_4X16X100|
 |hostname_prefix|Previx all hosts with this string|OCP-IBM|
 |os_reference_code|OS to use to deploy OpenShift|REDHAT_7_64|
 |hourly_billing|Set hourly billing on deployments|true|
@@ -133,11 +115,11 @@ Nodes are VM_instances that serve a specific purpose for OpenShift Container Pla
 
 |nodes | flavor | details | count |
 |------|--------|---------|-------|
-|Master Node | B1_4X16X100 | san disks: 100GB <ul><li> disk1 : 50 </li><li> disk2 : 25 </li><li>disk3 : 25 </li><ul> | master_count |
-| Infra Nodes | B1_4X16X100 | san disks: 100GB <ul><li> disk1 : 50 </li><li> disk2 : 25 </li><li>disk3 : 25 </li><ul> | infra_count |
-| App Nodes | B1_4X16X100 | san disks: 100GB <ul><li> disk1 : 50 </li><li> disk2 : 25 </li><li>disk3 : 25 </li><ul> | app_count |
+|Master Node | B1_4X16X100 | san disks: 100GB <ul><li> disk1 : 50 </li><li> disk2 : 25 </li><li>disk3 : 25 </li><ul> | var.master["nodes"] |
+| Infra Nodes | B1_4X16X100 | san disks: 100GB <ul><li> disk1 : 50 </li><li> disk2 : 25 </li><li>disk3 : 25 </li><ul> | var.infra["nodes"] |
+| App Nodes | B1_4X16X100 | san disks: 100GB <ul><li> disk1 : 50 </li><li> disk2 : 25 </li><li>disk3 : 25 </li><ul> | var.worker["nodes"] |
 | Bastion Nodes | B1_4X16X100 | <ul><li>disk : 100GB </li><li>disk : 50GB </li><ul> | 1 |
-| Storage Nodes | B1_4X16X100 | <ul><li>disk : 100GB </li><li>disk : 50GB </li><ul> | storage_count |
+| Storage Nodes | B1_4X16X100 | <ul><li>disk : 100GB </li><li>disk : 50GB </li><ul> | var.storage["nodes"] |
 
 
 ## Security Group configurations

@@ -22,15 +22,15 @@ output "bastion_hostname" {
 # Output Master Node
 #################################################
 output "master_private_ip" {
-  value = "${module.masternode.master_private_ip}"
+  value = "${module.masternode.private_ip}"
 }
 
 output "master_hostname" {
-  value = "${module.masternode.master_host}"
+  value = "${module.masternode.host}"
 }
 
 output "master_public_ip" {
-  value = "${module.masternode.master_public_ip}"
+  value = "${module.masternode.public_ip}"
 }
 
 
@@ -38,30 +38,30 @@ output "master_public_ip" {
 # Output Infra Node
 #################################################
 output "infra_private_ip" {
-  value = "${module.infranode.infra_private_ip}"
+  value = "${module.infranode.private_ip}"
 }
 
 output "infra_hostname" {
-  value = "${module.infranode.infra_host}"
+  value = "${module.infranode.host}"
 }
 
 output "infra_public_ip" {
-  value = "${module.infranode.infra_public_ip}"
+  value = "${module.infranode.public_ip}"
 }
 
 #################################################
 # Output App Node
 #################################################
 output "app_private_ip" {
-  value = "${module.appnode.app_private_ip}"
+  value = "${module.workernode.private_ip}"
 }
 
 output "app_hostname" {
-  value = "${module.appnode.app_host}"
+  value = "${module.workernode.host}"
 }
 
 output "app_public_ip" {
-  value = "${module.appnode.app_public_ip}"
+  value = "${module.workernode.public_ip}"
 }
 
 
@@ -69,15 +69,15 @@ output "app_public_ip" {
 # Output Storage Node
 #################################################
 output "storage_private_ip" {
-  value = "${module.storagenode.storage_private_ip}"
+  value = "${module.storagenode.private_ip}"
 }
 
 output "storage_hostname" {
-  value = "${module.storagenode.storage_host}"
+  value = "${module.storagenode.host}"
 }
 
 output "storage_public_ip" {
-  value = "${module.storagenode.storage_public_ip}"
+  value = "${module.storagenode.public_ip}"
 }
 
 #################################################

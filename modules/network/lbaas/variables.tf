@@ -6,8 +6,12 @@ variable "infra_subnet" {}
 variable "master_subnet" {}
 
 
-variable "infra_count" {}
-variable "master_count" {}
+variable "infra" {
+    type = "map"
+}
+variable "master" {
+    type = "map"
+}
 
 variable "infra_private_ip_addresses" {
     type = "list"
@@ -15,4 +19,8 @@ variable "infra_private_ip_addresses" {
 
 variable "master_private_ip_addresses" {
     type = "list"
+}
+
+variable "random_id" {
+  default = ""
 }

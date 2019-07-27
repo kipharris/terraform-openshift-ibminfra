@@ -8,8 +8,8 @@ resource "ibm_compute_ssh_key" "ssh_key_ose" {
     public_key = "${file(var.ssh_public_key)}"
 }
 
-resource "random_id" "ose_name" {
-    byte_length = 5
+resource "random_id" "tag" {
+    byte_length = 4
 }
 
 module "vlan" {
@@ -20,25 +20,26 @@ module "vlan" {
 
 module "lbaas" {
     source                      = "./modules/network/lbaas/"
-    infra_count                 = "${var.infra_count}"
+    infra                       = "${var.infra}"
     infra_subnet                = "${module.infranode.subnet}"
-    infra_private_ip_addresses  = "${module.infranode.infra_private_ip}"
-    master_count                = "${var.master_count}"
+    infra_private_ip_addresses  = "${module.infranode.private_ip}"
+    master                      = "${var.master}"
     master_subnet               = "${module.masternode.subnet}"
-    master_private_ip_addresses = "${module.masternode.master_private_ip}"
+    master_private_ip_addresses = "${module.masternode.private_ip}"
+    random_id                   = "${random_id.tag.hex}"
 }
 
 module "publicsg" {
     source              = "./modules/infrastructure/node_sg"
-    random_id           = "${random_id.ose_name.hex }"
-    node_sg_name        = "nc_ose_node_pub_sg"
+    random_id           = "${random_id.tag.hex }"
+    node_sg_name        = "ose_node_pub_sg"
     node_sg_description = "Public security group"
 }
 
 module "privatesg" {
     source              = "./modules/infrastructure/node_sg"
-    random_id           = "${random_id.ose_name.hex }"
-    node_sg_name        = "nc_ose_node_prv_sg"
+    random_id           = "${random_id.tag.hex }"
+    node_sg_name        = "ose_node_prv_sg"
     node_sg_description = "Private security group"
 }
 
@@ -47,7 +48,7 @@ module "privatesg" {
 #####################################################
 module "bastion" {
     source                  = "./modules/bastion/bastion_node"
-    random_id               = "${random_id.ose_name.hex}"
+    random_id               = "${random_id.tag.hex}"
     datacenter              = "${var.datacenter}"
     domain                  = "${var.domain}"
     private_vlan_id         = "${var.vlan_count == "1" ? "${join("", module.vlan.openshift_private_vlan_id)}" : var.private_vlanid}"
@@ -55,90 +56,92 @@ module "bastion" {
     hourly_billing          = "${var.hourly_billing}"
     bastion_os_ref_code     = "${var.os_reference_code}"
     bastion_hostname_prefix = "${var.hostname_prefix}"
-    bastion_flavor          = "${var.bastion_flavor}"
     bastion_ssh_key_id      = "${ibm_compute_ssh_key.ssh_key_ose.id}"
     bastion_private_ssh_key = "${var.private_ssh_key}"
     bastion_ssh_key_file    = "${var.bastion_ssh_key_file}"
+    node                    = "${var.bastion}"
 }
 
 #####################################################
 # Create vm cluster for master
 #####################################################
 module "masternode" {
-    source                 = "./modules/infrastructure/master_node"
-    random_id              = "${random_id.ose_name.hex}"
-    datacenter             = "${var.datacenter}"
-    domain                 = "${var.domain}"
-    private_vlan_id        = "${var.vlan_count == "1" ? "${join("", module.vlan.openshift_private_vlan_id)}" : var.private_vlanid}"
-    public_vlan_id         = "${var.vlan_count == "1" ? "${join("", module.vlan.openshift_public_vlan_id)}" : var.public_vlanid}"
-    hourly_billing         = "${var.hourly_billing}"
-    master_os_ref_code     = "${var.os_reference_code}"
-    master_node_count      = "${var.master_count}"
-    master_hostname_prefix = "${var.hostname_prefix}"
-    master_flavor          = "${var.master_flavor}"
-    master_ssh_key_ids     = ["${ibm_compute_ssh_key.ssh_key_ose.id}", "${module.bastion.bastion_public_ssh_key}"]
-    master_private_ssh_key = "${var.private_ssh_key}"
+    source          = "./modules/infrastructure/node"
+    hostname        = "master"
+    random_id       = "${random_id.tag.hex}"
+    datacenter      = "${var.datacenter}"
+    domain          = "${var.domain}"
+    private_vlan_id = "${var.vlan_count == "1" ? "${join("", module.vlan.openshift_private_vlan_id)}" : var.private_vlanid}"
+    public_vlan_id  = "${var.vlan_count == "1" ? "${join("", module.vlan.openshift_public_vlan_id)}" : var.public_vlanid}"
+    hourly_billing  = "${var.hourly_billing}"
+    os_ref_code     = "${var.os_reference_code}"
+    hostname_prefix = "${var.hostname_prefix}"
+    ssh_key_ids     = ["${ibm_compute_ssh_key.ssh_key_ose.id}", "${module.bastion.bastion_public_ssh_key}"]
+    private_ssh_key = "${var.private_ssh_key}"
+    node_pub_sg     = []
+    node_prv_sg     = []
+    node            = "${var.master}"
 }
 
 #####################################################
 # Create vm cluster for infra node
 #####################################################
 module "infranode" {
-    source                = "./modules/infrastructure/infra_node"
-    random_id             = "${random_id.ose_name.hex}"
-    datacenter            = "${var.datacenter}"
-    domain                = "${var.domain}"
-    private_vlan_id       = "${var.vlan_count == "1" ? "${join("", module.vlan.openshift_private_vlan_id)}" : var.private_vlanid}"
-    public_vlan_id        = "${var.vlan_count == "1" ? "${join("", module.vlan.openshift_public_vlan_id)}" : var.public_vlanid}"
-    infra_os_ref_code     = "${var.os_reference_code}"
-    hourly_billing        = "${var.hourly_billing}"
-    infra_node_count      = "${var.infra_count}"
-    infra_hostname_prefix = "${var.hostname_prefix}"
-    infra_flavor          = "${var.infra_flavor}"
-    infra_ssh_key_ids     = ["${ibm_compute_ssh_key.ssh_key_ose.id}", "${module.bastion.bastion_public_ssh_key}"]
-    infra_private_ssh_key = "${var.private_ssh_key}"
-    infra_node_pub_sg     = "${module.publicsg.openshift_node_id}"
-    infra_node_prv_sg     = "${module.privatesg.openshift_node_id}"
+    source          = "./modules/infrastructure/node"
+    hostname        = "infra"
+    random_id       = "${random_id.tag.hex}"
+    datacenter      = "${var.datacenter}"
+    domain          = "${var.domain}"
+    private_vlan_id = "${var.vlan_count == "1" ? "${join("", module.vlan.openshift_private_vlan_id)}" : var.private_vlanid}"
+    public_vlan_id  = "${var.vlan_count == "1" ? "${join("", module.vlan.openshift_public_vlan_id)}" : var.public_vlanid}"
+    os_ref_code     = "${var.os_reference_code}"
+    hourly_billing  = "${var.hourly_billing}"
+    hostname_prefix = "${var.hostname_prefix}"
+    ssh_key_ids     = ["${ibm_compute_ssh_key.ssh_key_ose.id}", "${module.bastion.bastion_public_ssh_key}"]
+    private_ssh_key = "${var.private_ssh_key}"
+    node_pub_sg     = ["${module.publicsg.openshift_node_id}"]
+    node_prv_sg     = ["${module.privatesg.openshift_node_id}"]
+    node            = "${var.infra}"
 }
 
 #####################################################
 # Create vm cluster for app
 #####################################################
-module "appnode" {
-  source              = "./modules/infrastructure/app_node"
-  random_id           = "${random_id.ose_name.hex}"
-  datacenter          = "${var.datacenter}"
-  domain              = "${var.domain}"
-  private_vlan_id     = "${var.vlan_count == "1" ? "${join("", module.vlan.openshift_private_vlan_id)}" : var.private_vlanid}"
-  public_vlan_id      = "${var.vlan_count == "1" ? "${join("", module.vlan.openshift_public_vlan_id)}" : var.public_vlanid}"
-  app_os_ref_code     = "${var.os_reference_code}"
-  hourly_billing      = "${var.hourly_billing}"
-  app_node_count      = "${var.app_count}"
-  app_hostname_prefix = "${var.hostname_prefix}"
-  app_flavor          = "${var.app_flavor}"
-  app_ssh_key_ids     = ["${ibm_compute_ssh_key.ssh_key_ose.id}", "${module.bastion.bastion_public_ssh_key}"]
-  app_private_ssh_key = "${var.private_ssh_key}"
-  app_node_pub_sg     = "${module.publicsg.openshift_node_id}"
-  app_node_prv_sg     = "${module.privatesg.openshift_node_id}"
+module "workernode" {
+  source          = "./modules/infrastructure/node"
+  hostname        = "worker"
+  random_id       = "${random_id.tag.hex}"
+  datacenter      = "${var.datacenter}"
+  domain          = "${var.domain}"
+  private_vlan_id = "${var.vlan_count == "1" ? "${join("", module.vlan.openshift_private_vlan_id)}" : var.private_vlanid}"
+  public_vlan_id  = "${var.vlan_count == "1" ? "${join("", module.vlan.openshift_public_vlan_id)}" : var.public_vlanid}"
+  os_ref_code     = "${var.os_reference_code}"
+  hourly_billing  = "${var.hourly_billing}"
+  hostname_prefix = "${var.hostname_prefix}"
+  ssh_key_ids     = ["${ibm_compute_ssh_key.ssh_key_ose.id}", "${module.bastion.bastion_public_ssh_key}"]
+  private_ssh_key = "${var.private_ssh_key}"
+  node_pub_sg     = ["${module.publicsg.openshift_node_id}"]
+  node_prv_sg     = ["${module.privatesg.openshift_node_id}"]
+  node            = "${var.worker}"
 }
 
 #####################################################
 # Create vm cluster for storage
 #####################################################
 module "storagenode" {
-  source                  = "modules/infrastructure/storage_node"
-  random_id               = "${random_id.ose_name.hex}"
-  datacenter              = "${var.datacenter}"
-  domain                  = "${var.domain}"
-  private_vlan_id         = "${var.vlan_count == "1" ? "${join("", module.vlan.openshift_private_vlan_id)}" : var.private_vlanid}"
-  public_vlan_id          = "${var.vlan_count == "1" ? "${join("", module.vlan.openshift_public_vlan_id)}" : var.public_vlanid}"
-  storage_os_ref_code     = "${var.os_reference_code}"
-  hourly_billing          = "${var.hourly_billing}"
-  storage_node_count      = "${var.storage_count}"
-  storage_hostname_prefix = "${var.hostname_prefix}"
-  storage_flavor          = "${var.storage_flavor}"
-  storage_ssh_key_ids     = ["${ibm_compute_ssh_key.ssh_key_ose.id}", "${module.bastion.bastion_public_ssh_key}"]
-  storage_private_ssh_key = "${var.private_ssh_key}"
-  storage_node_pub_sg     = "${module.publicsg.openshift_node_id}"
-  storage_node_prv_sg     = "${module.privatesg.openshift_node_id}"
+  source          = "./modules/infrastructure/node"
+  hostname        = "storage"
+  random_id       = "${random_id.tag.hex}"
+  datacenter      = "${var.datacenter}"
+  domain          = "${var.domain}"
+  private_vlan_id = "${var.vlan_count == "1" ? "${join("", module.vlan.openshift_private_vlan_id)}" : var.private_vlanid}"
+  public_vlan_id  = "${var.vlan_count == "1" ? "${join("", module.vlan.openshift_public_vlan_id)}" : var.public_vlanid}"
+  os_ref_code     = "${var.os_reference_code}"
+  hourly_billing  = "${var.hourly_billing}"
+  hostname_prefix = "${var.hostname_prefix}"
+  ssh_key_ids     = ["${ibm_compute_ssh_key.ssh_key_ose.id}", "${module.bastion.bastion_public_ssh_key}"]
+  private_ssh_key = "${var.private_ssh_key}"
+  node_pub_sg     = ["${module.publicsg.openshift_node_id}"]
+  node_prv_sg     = ["${module.privatesg.openshift_node_id}"]
+  node            = "${var.storage}"
 }

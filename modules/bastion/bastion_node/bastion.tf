@@ -21,14 +21,14 @@ resource "ibm_compute_ssh_key" "bastion_public_ssh_key" {
 resource "null_resource" "copy_bastion_private_key" {
     connection {
         type        = "ssh"
-        user        = "root"
+        user        = "${var.ssh_username}"
         host        = "${ibm_compute_vm_instance.bastion.ipv4_address}"
         private_key = "${file(var.bastion_private_ssh_key)}"
     }
 
     provisioner "file" {
       source      = "${var.bastion_ssh_key_file}"
-      destination = "/root/.ssh/id_rsa"
+      destination = "~/.ssh/id_rsa"
     }
     depends_on    = ["null_resource.create_bastion_private_key"]
 }
@@ -43,14 +43,15 @@ resource "ibm_compute_vm_instance" "bastion" {
     domain                     = "${var.domain}"
     datacenter                 = "${var.datacenter}"
     private_network_only       = "false"
-    flavor_key_name            = "${var.bastion_flavor}"
     network_speed              = 1000
     local_disk                 = "false"
-    disks                      = [ "100" ]
+    disks                      = [ "${var.node["disk_size"]}" ]
     ssh_key_ids                = ["${var.bastion_ssh_key_id}"]
     private_vlan_id            = "${var.private_vlan_id}"
     public_vlan_id             = "${var.public_vlan_id}"
     public_security_group_ids  = ["${ibm_security_group.openshift-bastion.id}"]
     private_security_group_ids = ["${ibm_security_group.openshift-bastion.id}"]
     hourly_billing             = "${var.hourly_billing}"
+    cores                      = "${var.node["vcpu"]}"
+    memory                     = "${var.node["memory"]}"
 }

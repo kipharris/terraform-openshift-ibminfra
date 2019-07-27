@@ -20,7 +20,6 @@ variable "bastion_hostname" {
 variable "bastion_hostname_prefix" {
   default = "IBM"
 }
-variable "bastion_flavor" {}
 variable "bastion_os_ref_code" {
   default = "REDHAT_7_64"
 }
@@ -42,4 +41,12 @@ variable "bastion_sg_name" {
 variable "bastion_sg_description" {
   default     = "bastion security grp for vms"
   description = "Description of the security group"
+}
+
+variable "node" {
+    type = "map"
+}
+
+variable "ssh_username" {
+    default = "root"
 }

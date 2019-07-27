@@ -2,7 +2,7 @@ resource "null_resource" "setup_bastion" {
 
   connection {
     type     = "ssh"
-    user     = "root"
+    user     = "${var.ssh_username}"
     host = "${var.bastion_ip_address}"
     private_key = "${file(var.private_ssh_key)}"
   }
