@@ -12,7 +12,7 @@ resource "ibm_compute_vm_instance" "node" {
   memory                     = "${var.node["memory"]}"
   network_speed              = 1000
   local_disk                 = "false"
-  disks                      = ["${var.node["disk_size"]}", "${var.node["docker_disk_size"]}", "${lookup(var.node, "gluster_disk_size", ""}"]
+  disks                      = ["${var.node["disk_size"]}", "${var.node["docker_disk_size"]}", "${lookup(var.node, "gluster_disk_size", "")}"]
   ssh_key_ids                = ["${var.ssh_key_ids}"]
   private_vlan_id            = "${var.private_vlan_id}"
   public_vlan_id             = "${var.public_vlan_id}"
