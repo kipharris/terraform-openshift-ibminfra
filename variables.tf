@@ -20,7 +20,7 @@ variable public_vlanid {
 }
 
 variable "private_ssh_key" {
-  default     = "~/.ssh/id_rsa"
+  default     = "~/.ssh/openshift_rsa"
 }
 
 variable "ssh-label" {
@@ -28,11 +28,11 @@ variable "ssh-label" {
 }
 
 variable "ssh_public_key" {
-  default     = "~/.ssh/id_rsa.pub"
+  default     = "~/.ssh/openshift_rsa.pub"
 }
 
 variable "bastion_ssh_key_file" {
-  default = "~/.ssh/id_rsa"
+  default = "~/.ssh/openshift_rsa"
 }
 
 variable "domain" {

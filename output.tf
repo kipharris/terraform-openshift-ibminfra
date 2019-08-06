@@ -81,6 +81,21 @@ output "storage_public_ip" {
 }
 
 #################################################
+# Output Storage Node
+#################################################
+output "haproxy_private_ip" {
+  value = "${module.storagenode.private_ip}"
+}
+
+output "haproxy_hostname" {
+  value = "${module.storagenode.host}"
+}
+
+output "haproxy_public_ip" {
+  value = "${module.storagenode.public_ip}"
+}
+
+#################################################
 # Output LBaaS VIP
 #################################################
 output "public_master_vip" {
