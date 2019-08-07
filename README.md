@@ -17,21 +17,25 @@ This is meant to be used as a module, make sure your module implementation sets 
 
 ```terraform
 module "infrastructure" {
-    source               = "git::ssh://git@github.ibm.com/ncolon/terraform-openshift-ibminfra.git"
-    ibm_sl_username      = "${var.ibm_sl_username}"
-    ibm_sl_api_key       = "${var.ibm_sl_api_key}"
-    datacenter           = "${var.datacenter}"
-    vlan_count           = "${var.vlan_count}"
-    private_vlanid       = "${var.private_vlanid}"
-    public_vlanid        = "${var.public_vlanid}"
-    private_ssh_key      = "${var.private_ssh_key}"
-    ssh_label            = "${var.ssh_label}"
-    ssh_public_key       = "${var.public_ssh_key}"
-    bastion_ssh_key_file = "${var.bastion_ssh_key_file}"
-    domain               = "${var.domain}"
-    hostname_prefix      = "${var.hostname_prefix}"
-    os_reference_code    = "${var.os_reference_code}"
-    hourly_billing       = "${var.hourly_billing}"
+    source                = "git::ssh://git@github.ibm.com/ncolon/terraform-openshift-ibminfra.git"
+    ibm_sl_username       = "${var.ibm_sl_username}"
+    ibm_sl_api_key        = "${var.ibm_sl_api_key}"
+    datacenter            = "${var.datacenter}"
+    domain                = "${var.domain}"
+    hostname_prefix       = "${var.hostname_prefix}"
+    vlan_count            = "${var.vlan_count}"
+    public_vlanid         = "${var.public_vlanid}"
+    private_vlanid        = "${var.private_vlanid}"
+    private_ssh_key       = "${var.private_ssh_key}"
+    ssh_public_key        = "${var.public_ssh_key}"
+    private_ssh_key       = "${var.private_ssh_key}"
+    hourly_billing        = "${var.hourly_billing}"
+    os_reference_code     = "${var.os_reference_code}"
+    master                = "${var.master}"
+    infra                 = "${var.infra}"
+    worker                = "${var.worker}"
+    storage               = "${var.storage}"
+    bastion               = "${var.bastion}"
 }
 ```
 
@@ -42,17 +46,23 @@ module "infrastructure" {
 |ibm_sl_username|User Name to login to IBM Cloud Infra (Softlayer)|-|
 |ibm_sl_api_key|API Key (or password) to access IBM Cloud Infra (Softlayer). You can run `bluemix cs locations` to see a list of all data centers in your region.|-|
 |datacenter|Data Center Location to deploy the OpenShift cluster.|wdc04|
-|vlan_count       |Create a private & public VLAN, in your account, for deploying Red Hat OpenShift. Default '1'. Set to '0' if use existing vlans id and '1' to deploy new vlan|1|
-|private_vlanid|Existing private vlan ID.  Ignored if `vlan_count = 0`|-|
-|public_vlanid|Existing public vlan ID.    Ignored if `vlan_count = 0`|-|
-|ssh_private_key|Path to SSH private key.|~/.ssh/id_rsa|
-|ssh_label|An identifying label to assign to the SSH key.|ssh_key_openshift|
-|ssh_public_key|Path to SSH public key.|~/.ssh/id_rsa.pub|
-|bastion_ssh_key_file|SSH Key to use for Bastion VM.  Must not have a passphrase set on it|~/.ssh/id_rsa|
 |domain|Domain Name for the network interface used by VMs in the cluster.|ibm.com|
 |hostname_prefix|Previx all hosts with this string|OCP-IBM|
-|os_reference_code|OS to use to deploy OpenShift|REDHAT_7_64|
+|vlan_count       |Create a private & public VLAN, in your account, for deploying Red Hat OpenShift. Default '1'. Set to '0' if use existing vlans id and '1' to deploy new vlan|1|
+|public_vlanid|Existing public vlan ID.    Ignored if `vlan_count = 0`|-|
+|private_vlanid|Existing private vlan ID.  Ignored if `vlan_count = 0`|-|
+|ssh_private_key|Path to SSH private key.|~/.ssh/id_rsa|
+|ssh_public_key|Path to SSH public key.|~/.ssh/id_rsa.pub|
+|ssh_label|An identifying label to assign to the SSH key.|ssh_key_openshift|
 |hourly_billing|Set hourly billing on deployments|true|
+|bastion_ssh_key_file|Path to Bastion SSH private key|~/.ssh/openshift_rsa|
+|os_reference_code|OS to use to deploy OpenShift|REDHAT_7_64|
+|bastion|A map variable for configuration of bastion node|See sample variables.tf|
+|master|A map variable for configuration of master nodes|See sample variables.tf|
+|infra|A map variable for configuration of infra nodes|See sample variables.tf|
+|worker|A map variable for configuration of worker nodes|See sample variables.tf|
+|storage|A map variable for configuration of storage nodes|See sample variables.tf|
+|ssh_user|SSH username.  Must have passwordless sudo access|root|
 
 ## Module Output
 |Variable Name|Description|Type
@@ -73,6 +83,8 @@ module "infrastructure" {
 |storage_private_ip|Provate IPv4 addresses of Storage Node vms|list|
 |storage_hostname|hostnames of Master Storage vms|list|
 |storage_public_ip|Public IPv4 addresses of Storage Node vms|list|
+|public_master_vip|FQDN of cluster master loadbalancer|string|
+|public_app_vip|FQDN of cluster apps loadbalancer|string|
 
 
 The infrastructure is provisioned using the terraform modules with the following configuration:
@@ -107,19 +119,19 @@ Nodes are VM_instances that serve a specific purpose for OpenShift Container Pla
 * The master and node security groups only allow for SSH connectivity between nodes inside of the Security Group while the Bastion allows SSH access from everywhere.
 * The Bastion host is the only ingress point for SSH in the cluster from external entities. When connecting to the OpenShift Container Platform infrastructure, the bastion forwards the request to the appropriate server. Connecting through the Bastion server requires specific SSH configuration.
 
-**Storage nodes:**s
+**Storage nodes:**
 
 * Used for deploying Container-Native Storage for OpenShift Container Platform. This deployment delivers a hyper-converged solution, where the storage containers that host Red Hat Gluster Storage co-reside with the compute containers and serve out storage from the hosts that have local or direct attached storage to the compute containers. Each storage node is mounted with 3 block storage devices.
 
 **Compute node configurations**
 
-|nodes | flavor | details | count |
-|------|--------|---------|-------|
-|Master Node | B1_4X16X100 | san disks: 100GB <ul><li> disk1 : 50 </li><li> disk2 : 25 </li><li>disk3 : 25 </li><ul> | var.master["nodes"] |
-| Infra Nodes | B1_4X16X100 | san disks: 100GB <ul><li> disk1 : 50 </li><li> disk2 : 25 </li><li>disk3 : 25 </li><ul> | var.infra["nodes"] |
-| App Nodes | B1_4X16X100 | san disks: 100GB <ul><li> disk1 : 50 </li><li> disk2 : 25 </li><li>disk3 : 25 </li><ul> | var.worker["nodes"] |
-| Bastion Nodes | B1_4X16X100 | <ul><li>disk : 100GB </li><li>disk : 50GB </li><ul> | 1 |
-| Storage Nodes | B1_4X16X100 | <ul><li>disk : 100GB </li><li>disk : 50GB </li><ul> | var.storage["nodes"] |
+|nodes | details | count |
+|------|---------|-------|
+| Bastion Nodes | os disk: 100Gb | 1 |
+| Master Node  | os disk: 100Gb<br>docker_disk : 100Gb | var.master["nodes"] |
+| Infra Nodes | os disk: 100Gb<br>docker_disk : 100Gb | var.infra["nodes"] |
+| Worker Nodes | os disk: 100Gb<br>docker_disk : 100Gb | var.worker["nodes"] |
+| Storage Nodes | os disk: 100Gb<br>docker_disk : 100Gb<br>gluster_disk : 250GB | var.storage["nodes"] |
 
 
 ## Security Group configurations
@@ -155,7 +167,7 @@ The following security group configuration assumes:
 
 OpenShift Compute Platform requires a fully functional DNS server, and is properly configured wildcard DNS zone that resolves to the IP address of the OpenShift router. By default, *dnsmasq* is automatically configured on all masters and nodes to listen on port 53. The pods use the nodes as their DNS, and the nodes forward the requests.
 
-You can use [terraform-openshift-cloudflare](https://github.ibm.com/ncolon/terraform-openshift-cloudflare) as a terraform module to provide DNS for cluster and [terraform-openshift-letsenctypt](https://github.ibm.com/ncolon/terraform-openshift-letsencrypt) to provide certificates for your custom domain.
+You can use [terraform-openshift-dnscerts](https://github.ibm.com/ncolon/terraform-openshift-cloudflare) as a terraform module to provide DNS and certificates for your cluster
 
 ## Software Version Details
 ***RHEL OSEv3 Details***
