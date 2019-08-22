@@ -5,14 +5,14 @@
 
 resource "ibm_network_vlan" "openshift_vlan_private" {
     count           = "${var.vlan_count}"
-    name            = "ncolon-ocp-prv-vlan"
+    name            = "ocp-prv-vlan"
     datacenter      = "${var.datacenter}"
     type            = "PRIVATE"
 }
 
 resource "ibm_network_vlan" "openshift_vlan_public" {
     count           = "${var.vlan_count}"
-    name            = "ncolon-ocp-pub-vlan"
+    name            = "ocp-pub-vlan"
     datacenter      = "${var.datacenter}"
     type            = "PUBLIC"
 }

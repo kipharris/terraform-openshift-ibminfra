@@ -4,7 +4,7 @@
 # Create a new ssh key
 resource "ibm_compute_ssh_key" "ssh_key_ose" {
     label      = "${var.ssh-label}"
-    notes      = "ncolon terraform SSH key for deploying OSE using Terraform"
+    notes      = "terraform SSH key for deploying OSE using Terraform"
     public_key = "${file(var.ssh_public_key)}"
 }
 

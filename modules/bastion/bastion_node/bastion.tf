@@ -13,7 +13,7 @@ locals {
 
 resource "ibm_compute_ssh_key" "bastion_public_ssh_key" {
     label      = "${var.bastion_ssh_label}"
-    notes      = "ncolon terraform SSH key for Bastion node"
+    notes      = "terraform SSH key for Bastion node"
     public_key = "${file(local.bastion_ssh_publickey_file)}"
     depends_on = ["null_resource.create_bastion_private_key"]
 }

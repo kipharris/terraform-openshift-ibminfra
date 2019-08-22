@@ -1,5 +1,5 @@
 resource "ibm_lbaas" "app-lbaas" {
-    name        = "ncolon-ocp-app-${var.random_id}"
+    name        = "ocp-app-${var.random_id}"
     description = "load balancer for OSE apps"
 
     subnets     = ["${var.infra_subnet}"]
@@ -26,7 +26,7 @@ resource "ibm_lbaas_server_instance_attachment" "infra" {
 
 
 resource "ibm_lbaas" "master-lbaas" {
-    name        = "ncolon-ocp-master-${var.random_id}"
+    name        = "ocp-master-${var.random_id}"
     description = "load balancer for OSE master"
 
     subnets     = ["${var.master_subnet}"]

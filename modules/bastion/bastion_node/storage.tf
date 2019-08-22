@@ -10,7 +10,7 @@
 #   iops           = 4000
 #   os_format_type = "Linux"
 #   hourly_billing = "${var.hourly_billing}"
-#   notes          = "ncolon terraform bastion block"
+#   notes          = "terraform bastion block"
 #   allowed_virtual_guest_ids  = ["${ibm_compute_vm_instance.bastion.id}"]
 # }
 #
