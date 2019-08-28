@@ -25,7 +25,7 @@ variable "bastion_os_ref_code" {
 }
 
 variable "bastion_ssh_key_id" {}
-variable "bastion_private_ssh_key" {}
+variable "private_ssh_key" {}
 variable "bastion_ssh_key_file" {
   default     = ".bastionkey_id_rsa"
 }
