@@ -3,12 +3,12 @@
 #################################################
 resource "null_resource" "create_bastion_private_key" {
     provisioner "local-exec" {
-        command = "if [ ! -f ${var.private_key_file} ]; then ssh-keygen  -f ${var.private_key_file} -N ''; fi"
+        command = "if [ ! -f ${var.private_ssh_key} ]; then ssh-keygen  -f ${var.private_ssh_key} -N ''; fi"
     }
 }
 
 locals {
-  bastion_ssh_publickey_file = "${var.private_key_file}.pub"
+  bastion_ssh_publickey_file = "${var.private_ssh_key}.pub"
 }
 
 resource "ibm_compute_ssh_key" "bastion_public_ssh_key" {
@@ -23,11 +23,11 @@ resource "null_resource" "copy_bastion_private_key" {
         type        = "ssh"
         user        = "${var.ssh_username}"
         host        = "${ibm_compute_vm_instance.bastion.ipv4_address}"
-        private_key = "${file(var.private_key_file)}"
+        private_key = "${file(var.private_ssh_key)}"
     }
 
     provisioner "file" {
-      source      = "${var.private_key_file}"
+      source      = "${var.private_ssh_key}"
       destination = "~/.ssh/id_rsa"
     }
     depends_on    = ["null_resource.create_bastion_private_key"]
