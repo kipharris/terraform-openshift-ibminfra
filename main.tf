@@ -58,7 +58,7 @@ module "bastion" {
     bastion_hostname_prefix = "${var.hostname_prefix}"
     bastion_ssh_key_id      = "${ibm_compute_ssh_key.ssh_key_ose.id}"
     bastion_private_ssh_key = "${var.private_ssh_key}"
-    bastion_ssh_key_file    = "${var.bastion_ssh_key_file}"
+    private_key_file        = "${var.private_key_file}"
     node                    = "${var.bastion}"
     disks                   = ["${var.bastion["disk_size"]}",]
 }
