@@ -69,6 +69,8 @@ output "app_public_ip" {
 #################################################
 # Output Storage Node
 #################################################
+
+/*
 output "storage_private_ip" {
   value = "${module.storagenode.private_ip}"
 }
@@ -80,7 +82,23 @@ output "storage_hostname" {
 output "storage_public_ip" {
   value = "${module.storagenode.public_ip}"
 }
+*/
+/*
+output "storage_private_ip" {
+ // value = "${module.storagenode.private_ip}"
+  value = "bad-kip"
+}
 
+output "storage_hostname" {
+ // value = "${module.storagenode.host}"
+  value = "bad-kip"
+}
+
+output "storage_public_ip" {
+ // value = "${module.storagenode.public_ip}"
+  value = "bad-kip"
+}
+*/
 
 #################################################
 # Output LBaaS VIP

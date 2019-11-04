@@ -97,6 +97,8 @@ variable "worker" {
     disk_size          = "100"      # Specify size or leave empty to use same size as template.
     docker_disk_size   = "100"   # Specify size for docker disk, default 100.
     docker_disk_device = "/dev/xvdc"
+    gluster_disk_size   = "250"
+    gluster_disk_device = "/dev/xvdd"    
   }
 }
 

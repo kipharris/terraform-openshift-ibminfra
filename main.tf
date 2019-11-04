@@ -57,7 +57,8 @@ module "bastion" {
     bastion_os_ref_code     = "${var.os_reference_code}"
     bastion_hostname_prefix = "${var.hostname_prefix}"
     bastion_ssh_key_id      = "${ibm_compute_ssh_key.ssh_key_ose.id}"
-    private_ssh_key         = "${var.private_ssh_key}"
+    bastion_private_ssh_key = "${var.private_ssh_key}"
+    bastion_ssh_key_file    = "${var.bastion_ssh_key_file}"
     node                    = "${var.bastion}"
     disks                   = ["${var.bastion["disk_size"]}",]
 }
@@ -125,12 +126,14 @@ module "workernode" {
   node_pub_sg     = ["${module.publicsg.openshift_node_id}"]
   node_prv_sg     = ["${module.privatesg.openshift_node_id}"]
   node            = "${var.worker}"
-  disks           = ["${var.worker["disk_size"]}", "${var.worker["docker_disk_size"]}"]
+  disks           = ["${var.worker["disk_size"]}", "${var.worker["docker_disk_size"]}", "${var.worker["gluster_disk_size"]}"]
 }
 
 #####################################################
 # Create vm cluster for storage
 #####################################################
+
+/*
 module "storagenode" {
   source          = "./modules/infrastructure/node"
   hostname        = "storage"
@@ -149,3 +152,4 @@ module "storagenode" {
   node            = "${var.storage}"
   disks           = ["${var.storage["disk_size"]}", "${var.storage["docker_disk_size"]}", "${var.storage["gluster_disk_size"]}"]
 }
+*/
